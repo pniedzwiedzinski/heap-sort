@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div>{{array}}</div>
-    <button v-on:click="sort()"></button>
+    <button v-on:click="sort()">Sort!</button>
     <div id="heap" style="position: relative">
       <svg id="svg-canvas" width="891" height="897" xlink="http://www.w3.org/1999/xlink"></svg>
       <heap v-if="render" :array="array" :id="0"/>
