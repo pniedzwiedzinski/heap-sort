@@ -11,7 +11,7 @@
     </div>
     <button v-on:click="sort()">Sort!</button>
     <div v-if="render && this.array.length > 0" id="heap" style="position: relative">
-      <svg id="svg-canvas" width="891" height="897" xlink="http://www.w3.org/1999/xlink"></svg>
+      <svg id="svg-canvas" width="100%" height="100%" xlink="http://www.w3.org/1999/xlink"></svg>
       <heap :array="array" :id="0"/>
     </div>
   </div>
@@ -21,22 +21,6 @@
 import Heap from "./components/Heap.vue";
 import { setTimeout } from "timers";
 import { Promise } from "q";
-
-function randomArray(n) {
-  let array = [];
-  for (let i = 0; i < n; i++) {
-    while (true) {
-      let r = Math.floor(Math.random() * 20);
-      if (!array.includes(r)) {
-        array.push(r);
-        break;
-      }
-    }
-  }
-  return array;
-}
-
-let random = randomArray(7);
 
 export default {
   name: "app",
@@ -53,8 +37,22 @@ export default {
     done: []
   }),
   methods: {
+    randomArray(n) {
+      let array = [];
+      for (let i = 0; i < n; i++) {
+        // TODO: fix complexity
+        while (true) {
+          let r = Math.floor(Math.random() * (this.length + 1));
+          if (!array.includes(r)) {
+            array.push(r);
+            break;
+          }
+        }
+      }
+      return array;
+    },
     generateArray() {
-      this.array = randomArray(this.length);
+      this.array = this.randomArray(this.length);
       this.render = false;
       this.$nextTick(() => {
         // Add the component back in
