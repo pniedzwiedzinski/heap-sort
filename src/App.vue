@@ -1,10 +1,18 @@
 <template>
   <div id="app">
-    <div>{{array}}</div>
+    Length:
+    <input type="number" v-model="length" @change="generateArray">
+    <div class="array">
+      <p>[</p>
+      <div v-for="a in array" v-bind:key="a" v-bind:id="'a'+a.toString()">
+        <p v-bind:class="done.includes(a) ? 'item' : 'done'">{{a}},</p>
+      </div>
+      <p>]</p>
+    </div>
     <button v-on:click="sort()">Sort!</button>
-    <div id="heap" style="position: relative">
+    <div v-if="render && this.array.length > 0" id="heap" style="position: relative">
       <svg id="svg-canvas" width="891" height="897" xlink="http://www.w3.org/1999/xlink"></svg>
-      <heap v-if="render" :array="array" :id="0"/>
+      <heap :array="array" :id="0"/>
     </div>
   </div>
 </template>
@@ -17,7 +25,13 @@ import { Promise } from "q";
 function randomArray(n) {
   let array = [];
   for (let i = 0; i < n; i++) {
-    array.push(Math.floor(Math.random() * 20));
+    while (true) {
+      let r = Math.floor(Math.random() * 20);
+      if (!array.includes(r)) {
+        array.push(r);
+        break;
+      }
+    }
   }
   return array;
 }
@@ -29,11 +43,24 @@ export default {
   components: {
     Heap
   },
+  created() {
+    this.generateArray();
+  },
   data: () => ({
-    array: random,
-    render: true
+    array: [],
+    length: 7,
+    render: true,
+    done: []
   }),
   methods: {
+    generateArray() {
+      this.array = randomArray(this.length);
+      this.render = false;
+      this.$nextTick(() => {
+        // Add the component back in
+        this.render = true;
+      });
+    },
     async swap(a, b) {
       return new Promise(r => {
         let tmp = this.array[a];
@@ -71,6 +98,7 @@ export default {
       for (let i = this.array.length - 1; i >= 0; i--) {
         // Move current root to end
         await this.swap(0, i);
+        //this.done.push(a);
 
         // call max heapify on the reduced heap
         await this.heapify(i, 0);
@@ -125,5 +153,10 @@ svg {
   position: absolute;
   top: 0px;
   left: 0px;
+}
+
+.array {
+  display: flex;
+  flex-direction: row;
 }
 </style>
