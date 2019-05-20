@@ -3,7 +3,7 @@
     <div class="node" :id="id">{{array[id]}}</div>
     <div v-if="2*id+1 < array.length" class="node-wrapper">
       <heap :array="array" :id="2*id+1"/>
-      <heap :array="array" :id="2*id+2"/>
+      <heap v-if="2*id+2 < array.length" :array="array" :id="2*id+2"/>
     </div>
   </div>
 </template>
@@ -48,6 +48,7 @@ export default {
 }
 
 .highlighted {
-  color: #45ff45;
+  /* color: #45ff45; */
+  background-color: #ff4545;
 }
 </style>
