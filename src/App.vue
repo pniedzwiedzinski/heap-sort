@@ -1,40 +1,48 @@
 <template>
   <div id="app">
-    Length:
-    <input type="number" v-model="length" @change="generateArray">
-    <div class="array">
+    <repo link="https://github.com/pniedzwiedzinski/heap-sort"/>
+    <!--Length:
+    <input type="number" v-model="length" @change="generateArray">-->
+    <!--<div class="array">
       <p>[</p>
       <div v-for="a in array" v-bind:key="a" v-bind:id="'a'+a.toString()">
         <p v-bind:class="done.includes(a) ? 'item' : 'done'">{{a}},</p>
       </div>
       <p>]</p>
-    </div>
+    </div>-->
+    {{array}}
     <button v-on:click="sort()">Sort!</button>
-    <div v-if="render && this.array.length > 0" id="heap" style="position: relative">
+    <div v-if="render && this.graphArray.length > 0" id="heap" style="position: relative">
       <svg id="svg-canvas" width="100%" height="100%" xlink="http://www.w3.org/1999/xlink"></svg>
-      <heap :array="array" :id="0"/>
+      <heap :array="graphArray" :id="0"/>
     </div>
+    {{sorted}}
   </div>
 </template>
 
 <script>
 import Heap from "./components/Heap.vue";
+import Repo from "./components/Link.vue";
 import { setTimeout } from "timers";
 import { Promise } from "q";
 
 export default {
   name: "app",
   components: {
-    Heap
+    Heap,
+    Repo
   },
   created() {
     this.generateArray();
   },
   data: () => ({
     array: [],
+    graphArray: [],
+    sorted: [],
     length: 7,
     render: true,
-    done: []
+    //done: [],
+    isSorting: false
   }),
   methods: {
     randomArray(n) {
@@ -53,6 +61,7 @@ export default {
     },
     generateArray() {
       this.array = this.randomArray(this.length);
+      this.graphArray = Array(...this.array);
       this.render = false;
       this.$nextTick(() => {
         // Add the component back in
@@ -64,6 +73,9 @@ export default {
         let tmp = this.array[a];
         this.array[a] = this.array[b];
         this.array[b] = tmp;
+        tmp = this.graphArray[a];
+        this.graphArray[a] = this.graphArray[b];
+        this.graphArray[b] = tmp;
         this.render = false;
         this.$nextTick(() => {
           // Add the component back in
@@ -89,17 +101,28 @@ export default {
       });
     },
     async sort() {
-      for (let i = Math.floor(this.array.length / 2) - 1; i >= 0; i--) {
-        await this.heapify(this.array.length, i);
+      if (this.graphArray.length === 0) {
+        this.sorted = [];
+        this.graphArray = this.array;
       }
-      console.log("sort");
-      for (let i = this.array.length - 1; i >= 0; i--) {
-        // Move current root to end
-        await this.swap(0, i);
-        //this.done.push(a);
+      if (this.isSorting) {
+        return;
+      } else {
+        this.isSorting = true;
+        for (let i = Math.floor(this.array.length / 2) - 1; i >= 0; i--) {
+          await this.heapify(this.array.length, i);
+        }
+        for (let i = this.array.length - 1; i >= 0; i--) {
+          // Move current root to end
+          await this.swap(0, i);
+          //this.done.push(a);
+          this.sorted.push(this.graphArray[i]);
+          this.graphArray.pop(i);
 
-        // call max heapify on the reduced heap
-        await this.heapify(i, 0);
+          // call max heapify on the reduced heap
+          await this.heapify(i, 0);
+          this.isSorting = false;
+        }
       }
     },
     async heapify(n, i) {
@@ -117,7 +140,6 @@ export default {
         }
 
         if (largest !== i) {
-          console.log(n, largest);
           await this.swap(i, largest);
           await this.heapify(n, largest);
         }
@@ -140,7 +162,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   font-size: calc(10px + 2vmin);
 }
 html {
