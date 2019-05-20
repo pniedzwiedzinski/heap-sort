@@ -103,7 +103,7 @@ export default {
     async sort() {
       if (this.graphArray.length === 0) {
         this.sorted = [];
-        this.graphArray = this.array;
+        this.graphArray = Array(...this.array);
       }
       if (this.isSorting) {
         return;
@@ -157,8 +157,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #fafafa;
-  margin-top: 60px;
-  min-height: 100vh;
+  padding-top: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
